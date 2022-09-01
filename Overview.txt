@@ -1,0 +1,53 @@
+This summary of our situation might help:
+
+- we use a single Raspberry Pi (RPi) that does the complete simulation 
+
+- there is provision for 96 inputs and 120 outputs (almost all used), achieved using 3 lines for each from the RPi, and shift registers in the interface boards
+
+- the RPi program cycles quickly (a few milliseconds), and the main functions are:
+   - read input
+   - process block, bells, levers, indicators, and set up output as necessary
+   - send output
+   - create trains
+   - move trains
+
+- in particular, interpretation of bell tapper input is:
+   - detect bell input and record the time (separately for each of 4 bells)
+   - record times for subsequent beats
+   - input is deemed complete after 1 second of silence (or 2 seconds in demo mode)
+   - calculate the intervals between beats
+   - the shortest interval defines a short beat, and anything greater than 1.5 times this is a long beat (eg. the intervals for 3-1 are short, short, long)
+   - the bell code is determined by the sequence of intervals
+
+I have attached a zip file giving details of our simulator in 7 files. These are:
+- main2829.c the C program 
+- main2829sb compiled to run on Raspberry Pi
+- data262.txt the data read by the program at start-up
+- tables.xls giving details of the tables used in the program
+- functions.xlsx shows the program functions in logical sequence, with line number references 
+- track yardage (SB diagram).pdf gives yardage, track circuit refs. for the program, etc. overlaid on the actual box diagram
+- Inputs Outputs.xls gives the refs. used in the program for the 96 inputs and 120 outputs
+
+Points to note:
+- the C file is best viewed in Codeblocks or similar, so you get line numbers and colours to make it easier to read
+- the data is read into the tables by function file_read
+- the reading/writing of the IOs is done by WiringPi (for some reason this needs to be run as root)
+- throughout the program, the lines are referenced as:
+   1 up slow
+   2 down slow
+   3 up fast
+   4 down fast
+- and the bells and block are referenced as:
+   1 Harpenden slow
+   2 Napsbury slow
+   3 Harpenden fast
+   4 Napsbury fast
+- the track circuits to the IBs are split in two, so that the distant can be returned to caution as the train passes (in reality I believe they were split into 4). So on the down slow for instance, TC refs. 11 and 12 both refer to the same light on the diagram. 
+
+The version I have done with a graphical interface to run on Raspberry Pi or PC replaces the input and output routines with graphics written in Python/Pygame. Data is exchanged between Python and C using shared memory.
+
+The version I have done using JMRI is a complete re-write (except for bell decoding and a few others). It is a combination of JMRI PanelPro, Logix and Scripting; the Pygame graphical interface above; and C. Really done for my own satisfaction and proof of concept.
+
+Good luck with all of this. Please ask for clarification of the C program when you've got to grips with the basics.
+
+Best regards, Rob 
